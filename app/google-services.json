@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "775497364255",
+    "firebase_url": "https://gallery-be3a5-default-rtdb.firebaseio.com",
+    "project_id": "gallery-be3a5",
+    "storage_bucket": "gallery-be3a5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775497364255:android:df0cb97e3ae729343d762a",
+        "android_client_info": {
+          "package_name": "com.example.gallery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775497364255-beeifb4pl7ee47s6gppuee193elvinri.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH7bW0famvs1J9P3J4NSp4ol4GbVaEheE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775497364255-beeifb4pl7ee47s6gppuee193elvinri.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
