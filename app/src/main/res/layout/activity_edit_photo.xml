@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditPhotoActivity"
+    android:background="@color/postBackground">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_editor_absoluteX="8sp"
+        app:layout_editor_absoluteY="8dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <ImageButton
+                android:id="@+id/edit_image_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/select_image"
+                android:scaleType="fitCenter"
+                android:layout_marginTop="66dp"
+                android:padding="10dp"
+                android:background="@color/postBackground"/>
+
+            <EditText
+                android:id="@+id/edit_about_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="start|top"
+                android:inputType="textMultiLine"
+                android:layout_below="@id/edit_image_button"
+                android:layout_margin="10dp"
+                android:background="@drawable/input"
+                android:hint="Write Something about the photo"
+                android:textSize="20sp"
+                android:padding="15dp"/>
+
+            <Button
+                android:id="@+id/btn_edit_photo"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/edit_about_photo"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/button"
+                android:padding="15dp"
+                android:text="Edit Photo"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>
