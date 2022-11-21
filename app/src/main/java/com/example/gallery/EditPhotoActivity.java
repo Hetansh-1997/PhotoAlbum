@@ -47,7 +47,7 @@ public class EditPhotoActivity extends AppCompatActivity {
     private DatabaseReference usersRef, photoRef;
     private FirebaseAuth mAuth;
 
-    private String postName, postKey, current_user_id;
+    private String postName, postKey, current_user_id, type;
     private String  downloadUrl;
     private boolean selectedImage = false;
 
@@ -60,12 +60,13 @@ public class EditPhotoActivity extends AppCompatActivity {
         btn = findViewById(R.id.btn_edit_photo);
 
         postKey = getIntent().getExtras().get("PostKey").toString();
+        type = getIntent().getExtras().get("Type").toString();
 
         mAuth = FirebaseAuth.getInstance();
         current_user_id = mAuth.getUid();
         postReference = FirebaseStorage.getInstance().getReference();
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        photoRef = FirebaseDatabase.getInstance().getReference().child("Photos").child(current_user_id).child(postKey);
+        photoRef = FirebaseDatabase.getInstance().getReference().child("Photos").child(current_user_id).child(type).child(postKey);
 
 
         photoRef.addValueEventListener(new ValueEventListener() {

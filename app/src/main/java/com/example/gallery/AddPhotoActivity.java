@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -37,6 +38,7 @@ public class AddPhotoActivity extends AppCompatActivity {
     private ImageButton ib;
     private EditText ed;
     private Button btn;
+    private Switch swt;
 
     final static int Gallery_Pick = 1;
     private Uri ImageUri;
@@ -58,6 +60,7 @@ public class AddPhotoActivity extends AppCompatActivity {
         ib = findViewById(R.id.image_button);
         ed = findViewById(R.id.ed_about_photo);
         btn = findViewById(R.id.btn_add_photo);
+        swt = findViewById(R.id.switch1);
 
         mAuth = FirebaseAuth.getInstance();
         current_user_id = mAuth.getUid();
@@ -93,6 +96,12 @@ public class AddPhotoActivity extends AppCompatActivity {
             Toast.makeText(AddPhotoActivity.this,"Please Write Description First!!", Toast.LENGTH_LONG).show();
         }
         else {
+            if (swt.isChecked()){
+                photoRef = photoRef.child("Hide");
+            }
+            else {
+                photoRef = photoRef.child("Public");
+            }
             loadingBar.setMessage("Photo is adding");
             loadingBar.show();
             loadingBar.setCanceledOnTouchOutside(true);

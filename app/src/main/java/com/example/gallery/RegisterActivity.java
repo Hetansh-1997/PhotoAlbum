@@ -23,7 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText email, name, pass, repass;
+    private EditText email, name, pass, repass, hidepass;
     private TextView login;
     private Button register;
 
@@ -32,7 +32,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private ProgressDialog loadingBar;
 
-    private String email_id, fullName, downloadUrl;
+    private String email_id, fullName, downloadUrl, hide_pass;
 
     private int passsame = 0;
 
@@ -47,6 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
         repass = findViewById(R.id.register_repassword);
         register = findViewById(R.id.register_button);
         login = findViewById(R.id.register_already_user_text);
+        hidepass =findViewById(R.id.register_hide_photo_password);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -139,16 +140,32 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    private boolean validateHidePass(){
+        String passInput = hidepass.getText().toString().trim();
+
+        if(passInput.isEmpty()){
+            hidepass.setError("Field can't be empty");
+            return false;
+        } else if(passInput.length() < 6){
+            hidepass.setError("Please enter a valid password");
+            return false;
+        } else {
+            hidepass.setError(null);
+            return true;
+        }
+    }
+
 
     private void registerUser() {
 
-        if (!validateEmail()  || !validateName() || !validatePassword() || passsame == 0) {
+        if (!validateEmail()  || !validateName() || !validatePassword() || !validateHidePass() || passsame == 0) {
             return;
         }
 
         email_id = email.getText().toString().trim();
         String password = pass.getText().toString().trim();
         fullName = name.getText().toString().trim();
+        hide_pass = hidepass.getText().toString().trim();
 
         loadingBar.setMessage("Account is creating");
         loadingBar.show();
@@ -162,7 +179,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                             User user = new User(
                                     fullName,
-                                    email_id
+                                    email_id,
+                                    hide_pass
                             );
 
                             FirebaseDatabase.getInstance().getReference("Users")

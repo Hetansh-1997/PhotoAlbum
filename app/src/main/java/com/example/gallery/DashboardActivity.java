@@ -51,7 +51,7 @@ public class DashboardActivity extends AppCompatActivity {
     private FloatingActionButton floatingActionButton;
 
     private EditText searchBar;
-    private ImageButton logoutButton, profileButton;
+    private ImageButton logoutButton, profileButton, hideButton;
 
     private DatabaseReference usersRef, photoRef;
     private FirebaseAuth mAuth;
@@ -70,11 +70,12 @@ public class DashboardActivity extends AppCompatActivity {
         searchBar = findViewById(R.id.photo_search);
         profileButton = findViewById(R.id.gallery_profile);
         logoutButton = findViewById(R.id.gallery_logout);
+        hideButton = findViewById(R.id.gallery_hide_photo);
 
         mAuth = FirebaseAuth.getInstance();
         current_user_id = mAuth.getUid();
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        photoRef = FirebaseDatabase.getInstance().getReference().child("Photos").child(current_user_id);
+        photoRef = FirebaseDatabase.getInstance().getReference().child("Photos").child(current_user_id).child("Public");
 
         //set post view
         recyclerView = findViewById(R.id.all_users_photos_list);
@@ -83,6 +84,13 @@ public class DashboardActivity extends AppCompatActivity {
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
+
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unlock();
+            }
+        });
 
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,7 +170,10 @@ public class DashboardActivity extends AppCompatActivity {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                alertDialog(postKey, model.getDescription(), model.getPhotoName());
+                                /*Intent clickPostIntent = new Intent(DashboardActivity.this, EditPhotoActivity.class);
+                                clickPostIntent.putExtra("PostKey", postKey);
+                                startActivity(clickPostIntent);*/
+                                alertDialog(postKey, model.getDescription(), model.getPhotoName(), model.getPhotoImage());
                             }
                         });
                     }
@@ -179,7 +190,67 @@ public class DashboardActivity extends AppCompatActivity {
         firebaseRecyclerAdapter.startListening();
     }
 
-    private void alertDialog(String postKey, String label, String name) {
+    private void unlock(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater layoutInflater = DashboardActivity.this.getLayoutInflater();
+
+        View view = layoutInflater.inflate(R.layout.delete_photo_alert_dialog, null);
+
+        builder.setView(view);
+
+        EditText passwordField = (EditText) view.findViewById(R.id.password);
+        passwordField.setHint("Enter password to unlock hide photos");
+
+        Button hideButton = (Button) view.findViewById(R.id.delete_button);
+        hideButton.setText("unlock");
+
+        Dialog dialog = builder.create();
+
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                usersRef.child(current_user_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@androidx.annotation.NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            String hide_pass = snapshot.child("hidePass").getValue().toString();
+
+                            pass = passwordField.getText().toString().trim();
+                            if (TextUtils.isEmpty(pass)){
+                                Toast.makeText(DashboardActivity.this,"Please Enter Password First!!", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+
+                                if (pass.equals(hide_pass)){
+                                    Intent hidePhotoIntent = new Intent(DashboardActivity.this, HidePhotoActivity.class);
+                                    startActivity(hidePhotoIntent);
+                                }
+                                else{
+                                    Toast.makeText(DashboardActivity.this,"Wrong Password!!", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@androidx.annotation.NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+            }
+        });
+
+
+        dialog.show();
+
+    }
+
+    private void alertDialog(String postKey, String label, String name, String Image) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         LayoutInflater layoutInflater = DashboardActivity.this.getLayoutInflater();
@@ -197,14 +268,129 @@ public class DashboardActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent clickPostIntent = new Intent(DashboardActivity.this, EditPhotoActivity.class);
                 clickPostIntent.putExtra("PostKey", postKey);
+                clickPostIntent.putExtra("Type", "Public");
                 startActivity(clickPostIntent);
             }
         });
 
+        Button hideButton = (Button) view.findViewById(R.id.hide_photo_button);
+
+
+        Button deleteButton = (Button) view.findViewById(R.id.delete_photo_button);
+
+        Dialog dialog = builder.create();
+
+        hideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HashMap postMap = new HashMap();
+                postMap.put("description", label);
+                postMap.put("photoImage", Image);
+                postMap.put("photoName", name);
+                FirebaseDatabase.getInstance().getReference().child("Photos").child(current_user_id).child("Hide")
+                        .child(postKey).updateChildren(postMap)
+                        .addOnCompleteListener(new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if(task.isSuccessful()){
+                                    photoRef.child(postKey).removeValue();
+                                    Toast.makeText(DashboardActivity.this,"Photo hide Successfully!!!", Toast.LENGTH_LONG).show();
+
+                                }
+                                else {
+                                    String msg = task.getException().getMessage();
+                                    Toast.makeText(DashboardActivity.this,"Error Occurred2: " + msg, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                dialog.cancel();
+            }
+        });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deletePhoto(postKey, name);
+                dialog.cancel();
+            }
+        });
+
+
         dialog.show();
     }
 
-    
+    private void deletePhoto(String postKey,String name) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater layoutInflater = DashboardActivity.this.getLayoutInflater();
+
+        View view = layoutInflater.inflate(R.layout.delete_photo_alert_dialog, null);
+
+        builder.setView(view);
+
+        EditText passwordField = (EditText) view.findViewById(R.id.password);
+
+        Button deleteButton = (Button) view.findViewById(R.id.delete_button);
+
+        Dialog dialog = builder.create();
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                usersRef.child(current_user_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@androidx.annotation.NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            email = snapshot.child("email").getValue().toString();
+
+                            pass = passwordField.getText().toString().trim();
+                            if (TextUtils.isEmpty(pass)){
+                                Toast.makeText(DashboardActivity.this,"Please Enter Password First!!", Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                AuthCredential credential = EmailAuthProvider
+                                        .getCredential(email, pass);
+
+                                mAuth.getCurrentUser().reauthenticate(credential)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@androidx.annotation.NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    photoRef.child(postKey).removeValue();
+                                                    FirebaseStorage.getInstance().getReference().child("Photo Images").child(name).delete()
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void unused) {
+                                                                            Toast.makeText(DashboardActivity.this,"Photo removed successfully!!", Toast.LENGTH_LONG).show();
+                                                                            dialog.cancel();
+                                                                        }
+                                                                    });
+
+                                                }
+                                                else {
+                                                    Toast.makeText(DashboardActivity.this,"Wrong Password!!", Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+
+
+                                        });
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@androidx.annotation.NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+            }
+        });
+
+
+        dialog.show();
+    }
 
     @Override
     protected void onStop() {

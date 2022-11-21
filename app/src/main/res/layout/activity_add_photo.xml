@@ -31,11 +31,25 @@
         android:textSize="20sp"
         android:padding="15dp"/>
 
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:switchMinWidth="56dp"
+        android:text="Hide Photo "
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:checked="false"
+        android:textOff="OFF"
+        android:textOn="ON"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/ed_about_photo"/>
+
     <Button
         android:id="@+id/btn_add_photo"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/ed_about_photo"
+        android:layout_below="@id/switch1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:background="@drawable/button"
